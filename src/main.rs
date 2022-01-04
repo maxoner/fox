@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, Subcommand, ArgEnum};
 use std::process::Command;
 
 fn exec_command(command: &str) -> String {
@@ -25,22 +25,38 @@ fn get_remote_url() -> String {
 
 #[derive(Parser)]
 #[clap(about)]
-struct Args {
+struct Cli {
 
-    name: String,
+    #[clap(subcommand)]
+    command: Command_,
 
+}
+
+#[derive(Subcommand)]
+#[clap(about)]
+enum Command_ {
+    Get {
+        #[clap(arg_enum)]
+        resource: Resource,
+    }
+}
+
+#[derive(Copy, Clone, ArgEnum)]
+enum Resource {
+    Url,
+    Pipe
 }
 
 
 fn main() {
-    let args = Args::parse();
+    let cli = Cli::parse();
+    let name = match cli.command {
 
-    let name: String = match args.name.as_str() {
-
-        "url" => get_remote_url(),
-        _     => "go to dick".to_string()
+        Command_::Get{ resource: Resource::Url }    => get_remote_url(),
+        Command_::Get{ resource: Resource::Pipe }   => todo!(),
 
     };
+
 
     println!("{}", name);
 }
